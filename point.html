@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code 1 - Arena VS Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #1e1b4b, #090d16 55%, #06283d);
+            color: #f8fafc;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+        }
+
+        .hero {
+            background: linear-gradient(120deg, #ec4899, #8b5cf6, #06b6d4);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.35);
+            text-align: center;
+        }
+
+        .hero h1 { font-size: 23px; letter-spacing: 0.5px; }
+        .hero p { font-size: 13px; margin-top: 5px; color: #fef9c3; font-weight: 500; }
+
+        .card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #38bdf8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .save-toast {
+            font-size: 11px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #22c55e;
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #020617;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: #f472b6; }
+
+        .btn-create {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+            color: #020617;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .match-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 14px;
+        }
+
+        .match-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .sport-badge {
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .sport-cricket { background: linear-gradient(90deg, #0284c7, #22c55e); }
+        .sport-kabaddi { background: linear-gradient(90deg, #ea580c, #eab308); color: #090d16; }
+        .sport-other { background: linear-gradient(90deg, #9333ea, #ec4899); }
+
+        .live-clock {
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 700;
+            background: #020617;
+            border: 1px solid #334155;
+            padding: 4px 10px;
+            border-radius: 8px;
+            color: #38bdf8;
+        }
+
+        .status-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 8px;
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .status-live {
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+
+        .winner-banner {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(250, 204, 21, 0.18), rgba(74, 222, 128, 0.18));
+            border: 1px solid rgba(250, 204, 21, 0.5);
+            color: #fde047;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .vs-board {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            background: #020617;
+            padding: 14px 10px;
+            border-radius: 14px;
+            border: 1px solid #1e293b;
+        }
+
+        .team-box h4 { font-size: 15px; color: #f8fafc; margin-bottom: 4px; }
+
+        .score-num {
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #38bdf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .vs-badge {
+            font-size: 14px;
+            font-weight: 900;
+            color: #facc15;
+            background: rgba(250, 204, 21, 0.14);
+            border: 1px solid rgba(250, 204, 21, 0.4);
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .point-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .side-btns {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .p-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #020617;
+        }
+
+        .btn-plus1 { background: #38bdf8; }
+        .btn-plus2 { background: #facc15; }
+        .btn-win { background: #4ade80; }
+
+        .winner-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .win-pick-btn {
+            flex: 1;
+            min-width: 100px;
+            background: rgba(250, 204, 21, 0.16);
+            border: 1px solid #eab308;
+            color: #fef08a;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .match-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #1e293b;
+        }
+
+        .start-btn {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            color: #ffffff;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .fs-btn {
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            color: #ffffff;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .copy-btn {
+            background: rgba(56, 189, 248, 0.18);
+            border: 1px solid #38bdf8;
+            color: #7dd3fc;
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .save-match-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .del-match {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        #fullscreenModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: radial-gradient(circle at center, #1e1b4b, #020617 85%);
+            padding: 20px;
+            overflow-y: auto;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fs-box {
+            width: 100%;
+            max-width: 780px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .fs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .fs-vs-board {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 14px;
+            text-align: center;
+            background: #020617;
+            padding: 24px 14px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            margin-bottom: 18px;
+        }
+
+        .fs-team-name { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .fs-score {
+            font-size: 46px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #38bdf8, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .exit-fs-btn {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #020617;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        th {
+            background: linear-gradient(90deg, #312e81, #1e3a8a);
+            color: #f8fafc;
+        }
+
+        .pts-highlight { color: #4ade80; font-weight: 800; }
+
+        .history-item {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 11px 13px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .history-item:last-child { margin-bottom: 0; }
+
+        .history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .history-winner {
+            color: #4ade80;
+            font-weight: 700;
+        }
+
+        .history-meta {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="hero">
+        <h1>CODE 1 — ARENA VS PRO</h1>
+        <p>Live Running Clock • Fullscreen Arena View • Winner, History & Copy Score</p>
+    </div>
+
+    <!-- 1. नया मैच जोड़ें -->
+    <div class="card">
+        <div class="card-title">
+            <span>नया VS मैच बनाएँ</span>
+            <span class="save-toast" id="saveIndicator">Saved Offline</span>
+        </div>
+        <form id="matchForm">
+            <div class="grid-form">
+                <select id="sportType">
+                    <option value="Cricket">Cricket</option>
+                    <option value="Kabaddi">Kabaddi</option>
+                    <option value="Football">Football</option>
+                    <option value="Volleyball">Volleyball</option>
+                </select>
+                <input type="text" id="teamA" placeholder="Team A नाम" required>
+                <input type="text" id="teamB" placeholder="Team B नाम" required>
+                <input type="time" id="startTime" required>
+            </div>
+            <button type="submit" class="btn-create">+ मैच जोड़ें और सेव करें</button>
+        </form>
+    </div>
+
+    <!-- 2. VS मैच कार्ड्स -->
+    <div class="card">
+        <div class="card-title">VS Matches (Click Full Screen for Big View)</div>
+        <div id="matchesContainer"></div>
+    </div>
+
+    <!-- 3. Points Standings -->
+    <div class="card">
+        <div class="card-title">Points Standings</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th style="text-align:left;">टीम</th>
+                    <th>मैच</th>
+                    <th>पॉइंट्स</th>
+                </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 4. Completed Match History -->
+    <div class="card">
+        <div class="card-title">
+            <span>Completed Match History</span>
+            <button class="clear-btn" onclick="clearHistory()">इतिहास साफ़ करें</button>
+        </div>
+        <div id="historyContainer"></div>
+    </div>
+</div>
+
+<!-- Fullscreen Match View -->
+<div id="fullscreenModal">
+    <div class="fs-box" id="fsContent"></div>
+</div>
+
+<script>
+    const STORAGE_KEY = "code1_arena_vs_matches_v1";
+    const HISTORY_KEY = "code1_arena_vs_history_v1";
+    let activeFullscreenId = null;
+
+    let matches = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+        {
+            id: 201,
+            sport: "Cricket",
+            teamA: "Delhi Titans",
+            teamB: "Mumbai Kings",
+            startTime: "19:00",
+            status: "LIVE",
+            elapsedSec: 125,
+            scoreA: 18,
+            scoreB: 14,
+            winner: ""
+        },
+        {
+            id: 202,
+            sport: "Kabaddi",
+            teamA: "Jaipur Panthers",
+            teamB: "Patna Pirates",
+            startTime: "20:30",
+            status: "Scheduled",
+            elapsedSec: 0,
+            scoreA: 9,
+            scoreB: 11,
+            winner: ""
+        }
+    ];
+
+    let matchHistory = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+
+    function formatTime(sec) {
+        const hrs = String(Math.floor(sec / 3600)).padStart(2, "0");
+        const mins = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+        const secs = String(sec % 60).padStart(2, "0");
+        return `${hrs}:${mins}:${secs}`;
+    }
+
+    function flashStatus(text, isCopy = false) {
+        const badge = document.getElementById("saveIndicator");
+        badge.textContent = text;
+        if (isCopy) {
+            setTimeout(() => {
+                badge.textContent = "Saved Offline";
+            }, 1500);
+        } else {
+            setTimeout(() => {
+                badge.textContent = "Saved Offline";
+            }, 1200);
+        }
+    }
+
+    function saveData(showBadge = true) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(matches));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(matchHistory));
+        if (showBadge) flashStatus("Saved ✓", false);
+        renderAll();
+        if (activeFullscreenId !== null) {
+            renderFullscreenMatch();
+        }
+    }
+
+    function buildMatchText(m) {
+        const lines = [
+            `🏟️ ${m.sport} Match (${m.status})`,
+            `⚔️ ${m.teamA} (${m.scoreA}) VS (${m.scoreB}) ${m.teamB}`,
+            `⏱️ Time: ${formatTime(m.elapsedSec || 0)} | Start: ${m.startTime || "-"}`
+        ];
+        if (m.winner) {
+            lines.push(`🏆 Result: ${m.winner}`);
+        }
+        return lines.join("\n");
+    }
+
+    function copyMatchText(id, btnEl) {
+        const m = matches.find(item => item.id === id);
+        if (!m) return;
+        const textToCopy = buildMatchText(m);
+
+        const onCopied = () => {
+            flashStatus("Score Copied ✓", true);
+            if (btnEl) {
+                const oldText = btnEl.textContent;
+                btnEl.textContent = "✓ Copied";
+                setTimeout(() => { btnEl.textContent = oldText; }, 1200);
+            }
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(onCopied).catch(() => fallbackCopy(textToCopy, onCopied));
+        } else {
+            fallbackCopy(textToCopy, onCopied);
+        }
+    }
+
+    function fallbackCopy(text, cb) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (_) {}
+        document.body.removeChild(ta);
+        if (cb) cb();
+    }
+
+    function getSportBadgeClass(sport) {
+        if (sport === "Cricket") return "sport-cricket";
+        if (sport === "Kabaddi") return "sport-kabaddi";
+        return "sport-other";
+    }
+
+    function recordCompletedMatch(matchObj, winnerText) {
+        const nowStr = new Date().toLocaleString("hi-IN");
+        matchHistory.unshift({
+            historyId: Date.now() + Math.random(),
+            sport: matchObj.sport,
+            teamA: matchObj.teamA,
+            teamB: matchObj.teamB,
+            scoreA: matchObj.scoreA,
+            scoreB: matchObj.scoreB,
+            duration: formatTime(matchObj.elapsedSec || 0),
+            winner: winnerText,
+            completedAt: nowStr
+        });
+    }
+
+    function toggleMatchStatus(id) {
+        matches = matches.map(m => {
+            if (m.id !== id) return m;
+            const nextStatus = m.status === "LIVE" ? "Finished" : "LIVE";
+            if (nextStatus === "Finished" && !m.winner) {
+                const autoWin = m.scoreA > m.scoreB ? m.teamA : (m.scoreB > m.scoreA ? m.teamB : "Match Draw");
+                recordCompletedMatch({ ...m, status: nextStatus }, autoWin);
+                return { ...m, status: nextStatus, winner: autoWin };
+            }
+            return { ...m, status: nextStatus };
+        });
+        saveData();
+    }
+
+    function declareWinner(id, winnerChoice) {
+        matches = matches.map(m => {
+            if (m.id !== id) return m;
+            const winnerLabel = winnerChoice === "DRAW" ? "Match Draw" : winnerChoice;
+            const updated = { ...m, status: "Finished", winner: winnerLabel };
+            recordCompletedMatch(updated, winnerLabel);
+            return updated;
+        });
+        saveData();
+    }
+
+    function addPoints(id, side, pts) {
+        matches = matches.map(m => {
+            if (m.id !== id) return m;
+            return {
+                ...m,
+                scoreA: side === "A" ? m.scoreA + pts : m.scoreA,
+                scoreB: side === "B" ? m.scoreB + pts : m.scoreB
+            };
+        });
+        saveData();
+    }
+
+    function deleteMatch(id) {
+        if (activeFullscreenId === id) closeFullscreen();
+        matches = matches.filter(m => m.id !== id);
+        saveData();
+    }
+
+    function clearHistory() {
+        matchHistory = [];
+        saveData();
+    }
+
+    function openFullscreen(id) {
+        activeFullscreenId = id;
+        const modal = document.getElementById("fullscreenModal");
+        modal.style.display = "flex";
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+        renderFullscreenMatch();
+    }
+
+    function closeFullscreen() {
+        activeFullscreenId = null;
+        document.getElementById("fullscreenModal").style.display = "none";
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }
+
+    function renderFullscreenMatch() {
+        const m = matches.find(item => item.id === activeFullscreenId);
+        const fsContent = document.getElementById("fsContent");
+        if (!m) {
+            closeFullscreen();
+            return;
+        }
+
+        const isLive = m.status === "LIVE";
+        fsContent.innerHTML = `
+            <div class="fs-header">
+                <span class="sport-badge ${getSportBadgeClass(m.sport)}">${m.sport}</span>
+                <span class="live-clock">⏱ ${formatTime(m.elapsedSec)}</span>
+                <span class="status-pill ${isLive ? "status-live" : ""}">${m.status}</span>
+                <button class="exit-fs-btn" onclick="closeFullscreen()">✕ Exit Full Screen</button>
+            </div>
+
+            <div class="fs-vs-board">
+                <div>
+                    <div class="fs-team-name">${m.teamA}</div>
+                    <div class="fs-score">${m.scoreA}</div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div>
+                    <div class="fs-team-name">${m.teamB}</div>
+                    <div class="fs-score">${m.scoreB}</div>
+                </div>
+            </div>
+
+            <div class="point-controls">
+                <div class="side-btns">
+                    <button class="p-btn btn-plus1" onclick="addPoints(${m.id}, 'A', 1)">+1 ${m.teamA}</button>
+                    <button class="p-btn btn-plus2" onclick="addPoints(${m.id}, 'A', 2)">+2 ${m.teamA}</button>
+                    <button class="p-btn btn-win" onclick="addPoints(${m.id}, 'A', 5)">+5 ${m.teamA}</button>
+                </div>
+                <div class="side-btns">
+                    <button class="p-btn btn-plus1" onclick="addPoints(${m.id}, 'B', 1)">+1 ${m.teamB}</button>
+                    <button class="p-btn btn-plus2" onclick="addPoints(${m.id}, 'B', 2)">+2 ${m.teamB}</button>
+                    <button class="p-btn btn-win" onclick="addPoints(${m.id}, 'B', 5)">+5 ${m.teamB}</button>
+                </div>
+            </div>
+
+            <div class="winner-bar">
+                <button class="win-pick-btn" onclick="declareWinner(${m.id}, '${m.teamA.replace(/'/g, "\\'")}')">🏆 Winner: ${m.teamA}</button>
+                <button class="win-pick-btn" onclick="declareWinner(${m.id}, '${m.teamB.replace(/'/g, "\\'")}')">🏆 Winner: ${m.teamB}</button>
+                <button class="win-pick-btn" onclick="declareWinner(${m.id}, 'DRAW')">🤝 Draw</button>
+            </div>
+
+            ${m.winner ? `<div class="winner-banner">🏆 Result: ${m.winner}</div>` : ""}
+
+            <div class="match-actions" style="margin-top:18px;">
+                <button class="start-btn" onclick="toggleMatchStatus(${m.id})">${isLive ? "■ Stop Timer" : "▶ Start Live Timer"}</button>
+                <button class="copy-btn" onclick="copyMatchText(${m.id}, this)">📋 Copy Score</button>
+                <button class="save-match-btn" onclick="saveData(true)">💾 Save Match</button>
+            </div>
+        `;
+    }
+
+    function renderMatches() {
+        const container = document.getElementById("matchesContainer");
+        if (matches.length === 0) {
+            container.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:12px;">कोई मैच नहीं है।</p>`;
+            return;
+        }
+
+        container.innerHTML = matches.map(m => {
+            const isLive = m.status === "LIVE";
+            const statusBtnText = m.status === "Scheduled" ? "▶ Start" : (isLive ? "■ Stop" : "↻ Resume Live");
+
+            return `
+                <div class="match-card">
+                    <div class="match-top">
+                        <span class="sport-badge ${getSportBadgeClass(m.sport)}">${m.sport}</span>
+                        <span class="live-clock" id="clock-${m.id}">⏱ ${formatTime(m.elapsedSec)}</span>
+                        <span class="status-pill ${isLive ? "status-live" : ""}">${m.status}</span>
+                    </div>
+
+                    <div class="vs-board">
+                        <div class="team-box">
+                            <h4>${m.teamA}</h4>
+                            <div class="score-num">${m.scoreA}</div>
+                        </div>
+                        <div class="vs-badge">VS</div>
+                        <div class="team-box">
+                            <h4>${m.teamB}</h4>
+                            <div class="score-num">${m.scoreB}</div>
+                        </div>
+                    </div>
+
+                    <div class="point-controls">
+                        <div class="side-btns">
+                            <button class="p-btn btn-plus1" onclick="addPoints(${m.id}, 'A', 1)">+1</button>
+                            <button class="p-btn btn-plus2" onclick="addPoints(${m.id}, 'A', 2)">+2</button>
+                            <button class="p-btn btn-win" onclick="addPoints(${m.id}, 'A', 5)">+5</button>
+                        </div>
+                        <div class="side-btns">
+                            <button class="p-btn btn-plus1" onclick="addPoints(${m.id}, 'B', 1)">+1</button>
+                            <button class="p-btn btn-plus2" onclick="addPoints(${m.id}, 'B', 2)">+2</button>
+                            <button class="p-btn btn-win" onclick="addPoints(${m.id}, 'B', 5)">+5</button>
+                        </div>
+                    </div>
+
+                    <div class="winner-bar">
+                        <button class="win-pick-btn" onclick="declareWinner(${m.id}, '${m.teamA.replace(/'/g, "\\'")}')">🏆 ${m.teamA} Win</button>
+                        <button class="win-pick-btn" onclick="declareWinner(${m.id}, '${m.teamB.replace(/'/g, "\\'")}')">🏆 ${m.teamB} Win</button>
+                        <button class="win-pick-btn" onclick="declareWinner(${m.id}, 'DRAW')">🤝 Draw</button>
+                    </div>
+
+                    ${m.winner ? `<div class="winner-banner">🏆 Winner / Result: ${m.winner}</div>` : ""}
+
+                    <div class="match-actions">
+                        <button class="start-btn" onclick="toggleMatchStatus(${m.id})">${statusBtnText}</button>
+                        <button class="fs-btn" onclick="openFullscreen(${m.id})">⛶ Full Screen</button>
+                        <button class="copy-btn" onclick="copyMatchText(${m.id}, this)">📋 Copy Score</button>
+                        <button class="save-match-btn" onclick="saveData(true)">💾 Save</button>
+                        <button class="del-match" onclick="deleteMatch(${m.id})">हटाएं</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderStandings() {
+        const tbody = document.getElementById("standingsBody");
+        const map = new Map();
+
+        matches.forEach(m => {
+            if (!map.has(m.teamA)) map.set(m.teamA, { name: m.teamA, played: 0, pts: 0 });
+            if (!map.has(m.teamB)) map.set(m.teamB, { name: m.teamB, played: 0, pts: 0 });
+
+            const a = map.get(m.teamA);
+            const b = map.get(m.teamB);
+            a.played += 1;
+            b.played += 1;
+            a.pts += m.scoreA;
+            b.pts += m.scoreB;
+        });
+
+        const list = Array.from(map.values()).sort((x, y) => y.pts - x.pts);
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="color:#94a3b8; padding:12px;">कोई डेटा नहीं है।</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = list.map((t, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td style="text-align:left; font-weight:600;">${t.name}</td>
+                <td>${t.played}</td>
+                <td class="pts-highlight">${t.pts}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderHistory() {
+        const box = document.getElementById("historyContainer");
+        if (matchHistory.length === 0) {
+            box.innerHTML = `<p style="color:#94a3b8; font-size:13px; text-align:center; padding:10px;">अभी कोई पूरा हुआ मैच इतिहास में नहीं है।</p>`;
+            return;
+        }
+
+        box.innerHTML = matchHistory.map(h => `
+            <div class="history-item">
+                <div class="history-top">
+                    <strong>[${h.sport}] ${h.teamA} (${h.scoreA}) vs (${h.scoreB}) ${h.teamB}</strong>
+                    <span class="history-winner">🏆 ${h.winner}</span>
+                </div>
+                <div class="history-meta">Duration: ${h.duration} • Saved: ${h.completedAt}</div>
+            </div>
+        `).join("");
+    }
+
+    function renderAll() {
+        renderMatches();
+        renderStandings();
+        renderHistory();
+    }
+
+    document.getElementById("matchForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const sport = document.getElementById("sportType").value;
+        const teamA = document.getElementById("teamA").value.trim();
+        const teamB = document.getElementById("teamB").value.trim();
+        const startTime = document.getElementById("startTime").value;
+
+        if (!teamA || !teamB) return;
+
+        matches.unshift({
+            id: Date.now(),
+            sport,
+            teamA,
+            teamB,
+            startTime,
+            status: "LIVE",
+            elapsedSec: 0,
+            scoreA: 0,
+            scoreB: 0,
+            winner: ""
+        });
+
+        document.getElementById("teamA").value = "";
+        document.getElementById("teamB").value = "";
+        saveData(true);
+    });
+
+    setInterval(() => {
+        let hasLive = false;
+        matches = matches.map(m => {
+            if (m.status === "LIVE") {
+                hasLive = true;
+                return { ...m, elapsedSec: (m.elapsedSec || 0) + 1 };
+            }
+            return m;
+        });
+
+        if (hasLive) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(matches));
+            matches.forEach(m => {
+                const el = document.getElementById(`clock-${m.id}`);
+                if (el) el.textContent = `⏱ ${formatTime(m.elapsedSec)}`;
+            });
+            if (activeFullscreenId !== null) {
+                renderFullscreenMatch();
+            }
+        }
+    }, 1000);
+
+    renderAll();
+</script>
+
+</body>
+</html>
